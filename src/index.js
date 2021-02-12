@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express')
 const app = express()
-const PORT = 3000
+const PORT = 80
 const realworldUrl= require('./projectPath').realworldUrl
 const handleListening = () =>
 console.log(`✅ Listening Port : ${PORT}`);
