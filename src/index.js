@@ -11,6 +11,7 @@ app.listen(PORT, handleListening);
 const os = require( 'os' );
 const networkInterfaces = os.networkInterfaces();
 // console.log(networkInterfaces);
+console.log(networkInterfaces);
 const arr = networkInterfaces['Loopback Pseudo-Interface 1']
 const ip = arr[1].address
 console.log('ip',ip);
