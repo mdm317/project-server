@@ -4,30 +4,40 @@ const express = require('express')
 const app = express()
 const PORT = 80
 const realworldUrl= require('./projectPath').realworldUrl
+const yunshopUrl = require('./projectPath').yunshopUrl
 const handleListening = () =>
 console.log(`✅ Listening Port : ${PORT}`);
 
-app.listen(PORT, handleListening);
-const os = require( 'os' );
-const networkInterfaces = os.networkInterfaces();
-// console.log(networkInterfaces);
-console.log(networkInterfaces);
-const arr = networkInterfaces['Loopback Pseudo-Interface 1']
-const ip = arr[1].address
-console.log('ip',ip);
-const template = fs.readFileSync(path.join(__dirname,realworldUrl,'index.html'), { encoding: 'utf8'});
+const insertPath = require('./utils').insertPath;
+const insertRealworld = insertPath('realworld');
+const insertYunshop = insertPath('yunshop');
+const relativePathReg = /(\=\"\/)([^\/])/g;
 
-app.use('/realworld',express.static(path.join(__dirname,realworldUrl)));
+app.listen(PORT, handleListening);
+
+const realworldHtml = fs.readFileSync(path.join(__dirname,realworldUrl,'index.html'), { encoding: 'utf8'});
+const yunShopHtml = fs.readFileSync(path.join(__dirname,yunshopUrl,'index.html'), { encoding: 'utf8'});
+
+//수정전의 html 이 보내지는것을 막기위해 index에 false 를 넣어줌
+app.use('/realworld',express.static(path.join(__dirname,realworldUrl),{  index: false,}));
+app.use('/yunshop',express.static(path.join(__dirname,yunshopUrl),{  index: false,}));
 
 app.get('/realworld*', (req, res) => {
-    const newTemplate = template.replace('main.js', `http://${ip}:${PORT}/realworld/main.js`);
+
+    const newHtml = realworldHtml.replace(relativePathReg,insertRealworld);
     console.log('send realworld');
     // return res.send('realworld');
-    res.send(newTemplate);
+    res.send(newHtml);
     // res.sendFile(path.resolve(__dirname, '../dist/index.html'));
 })
-app.get('/yunshop/*', (req, res) => {
-    return res.send('yun shop');
+app.get('/yunshop*', (req, res) => {
+    const newHtml = yunShopHtml.replace(relativePathReg,insertYunshop);
+    console.log('send yunshop');
+    // console.log(newHtml);
+    res.send(newHtml);
+
+    // console.log('send yunshop');
+    // res.sendFile(path.join(__dirname,yunshopUrl,'index.html'));
 })
 app.get('/favicon.ico', (req, res) => {
     console.log('send  favicon');
@@ -35,5 +45,5 @@ app.get('/favicon.ico', (req, res) => {
 })
 app.get('/*', (req, res) => {
     console.log('send  read me');
-    return res.send('read me')
+    res.redirect('https://mdm317.github.io/')
 })
